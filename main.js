@@ -12416,7 +12416,7 @@ var _user$project$Main$initialMovies = {
 };
 var _user$project$Main$init = {
 	ctor: '_Tuple2',
-	_0: A2(_user$project$Main$Model, 'welcome to trailer tracker', _user$project$Main$initialMovies),
+	_0: A2(_user$project$Main$Model, 'welcome to trailer tracker.', _user$project$Main$initialMovies),
 	_1: _elm_lang$core$Platform_Cmd$none
 };
 var _user$project$Main$main = _elm_lang$html$Html$program(

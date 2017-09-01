@@ -33,7 +33,7 @@ type alias Model =
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model "welcome to trailer tracker" initialMovies, Cmd.none )
+    ( Model "welcome to trailer tracker." initialMovies, Cmd.none )
 
 
 initialMovies : List Movie
