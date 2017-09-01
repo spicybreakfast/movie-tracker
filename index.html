@@ -1,0 +1,21 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset=utf-8" />
+
+    <link rel="stylesheet" href="https://unpkg.com/tachyons/css/tachyons.min.css">
+
+    <script src="main.js"></script>
+  </head>
+  <body class="bg-near-white mid-gray sans-serif">
+    <div id="main" class="ma3">
+    </div>
+    <script>
+document.addEventListener('DOMContentLoaded', () => {
+  const target = document.getElementById('main')
+
+  Elm.Main.embed(target);
+})
+    </script>
+  </body>
+</html>
