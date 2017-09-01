@@ -7,20 +7,7 @@ module Main exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (autofocus, class, href, placeholder, type_, value)
 import Html.Events exposing (onClick, onInput)
-
-
---import Html.Events exposing (..)
-
-
-main : Program Never Model Msg
-main =
-    Html.program
-        { init = init
-        , view = view
-        , update = update
-        , subscriptions = subscriptions
-        }
-
+import Http
 
 
 -- MODEL
@@ -33,24 +20,25 @@ type alias Model =
     }
 
 
-init : ( Model, Cmd Msg )
-init =
-    ( Model "welcome to trailer tracker." initialMovies "", Cmd.none )
+initialModel : Model
+initialModel =
+    Model "welcome to trailer tracker." [] ""
 
 
-initialMovies : List Movie
-initialMovies =
-    [ Movie "Lucky"
-        "https://trailers.apple.com/trailers/magnolia/lucky/"
-        "dude from alien"
-    , Movie "Thor: Ragnorok"
-        "https://trailers.apple.com/trailers/marvel/thor-ragnarok/"
-        ""
-    , Movie "Strange Weather"
-        "https://trailers.apple.com/trailers/independent/strange-weather/"
-        "Holly Hunter and Carrie Coon"
-    , Movie "Incredibles 2" "" ""
-    ]
+
+--initialMovies : List Movie
+--initialMovies =
+--[ Movie "Lucky"
+--"https://trailers.apple.com/trailers/magnolia/lucky/"
+--"dude from alien"
+--, Movie "Thor: Ragnorok"
+--"https://trailers.apple.com/trailers/marvel/thor-ragnarok/"
+--""
+--, Movie "Strange Weather"
+--"https://trailers.apple.com/trailers/independent/strange-weather/"
+--"Holly Hunter and Carrie Coon"
+--, Movie "Incredibles 2" "" ""
+--]
 
 
 type alias Movie =
@@ -68,17 +56,26 @@ type Msg
     = AddMovie
     | SetMovieInput String
     | SaveMovie
-
-
-
---| GetMovies
+    | NewMovies (Result Http.Error String)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        --GetMovies ->
-        --( 
+        NewMovies (Ok jsonString) ->
+            let
+                _ =
+                    Debug.log "woo: " jsonString
+            in
+            ( model, Cmd.none )
+
+        NewMovies (Err error) ->
+            let
+                _ =
+                    Debug.log "abbot is death process." error
+            in
+            ( model, Cmd.none )
+
         AddMovie ->
             ( model, Cmd.none )
 
@@ -101,6 +98,20 @@ update msg model =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.none
+
+
+
+-- COMMANDS
+
+
+moviesUrl : String
+moviesUrl =
+    "http://localhost:3000/movies"
+
+
+getMovies : Cmd Msg
+getMovies =
+    Http.send NewMovies (Http.getString moviesUrl)
 
 
 
@@ -154,3 +165,17 @@ view model =
         , hr [ class "mt4" ] []
         , text (toString model)
         ]
+
+
+
+-- MAIN
+
+
+main : Program Never Model Msg
+main =
+    Html.program
+        { init = ( initialModel, getMovies )
+        , view = view
+        , update = update
+        , subscriptions = subscriptions
+        }
