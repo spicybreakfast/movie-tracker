@@ -5,7 +5,8 @@
 module Main exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (class, href)
+import Html.Attributes exposing (autofocus, class, href, placeholder, type_, value)
+import Html.Events exposing (onClick, onInput)
 
 
 --import Html.Events exposing (..)
@@ -28,12 +29,13 @@ main =
 type alias Model =
     { greeting : String
     , movies : List Movie
+    , titleInput : String
     }
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( Model "welcome to trailer tracker." initialMovies, Cmd.none )
+    ( Model "welcome to trailer tracker." initialMovies "", Cmd.none )
 
 
 initialMovies : List Movie
@@ -63,14 +65,33 @@ type alias Movie =
 
 
 type Msg
-    = Noop
+    = AddMovie
+    | SetMovieInput String
+    | SaveMovie
+
+
+
+--| GetMovies
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Noop ->
+        --GetMovies ->
+        --( 
+        AddMovie ->
             ( model, Cmd.none )
+
+        SetMovieInput value ->
+            ( { model | titleInput = value }, Cmd.none )
+
+        SaveMovie ->
+            ( { model
+                | movies = model.movies ++ [ Movie model.titleInput "" "" ]
+                , titleInput = ""
+              }
+            , Cmd.none
+            )
 
 
 
@@ -88,7 +109,7 @@ subscriptions model =
 
 viewMovieItem : Movie -> Html Msg
 viewMovieItem movie =
-    li []
+    li [ class "ph3 pv3 bb b--light-silver" ]
         [ text movie.title
         , text " - "
         , a [ href movie.url ] [ text movie.url ]
@@ -99,8 +120,29 @@ viewMovieItem movie =
 
 viewMovieList : List Movie -> Html Msg
 viewMovieList movies =
-    ul []
+    ul [ class "list pl0 ml0 mw6 ba b--light-silver br2 bg-white" ]
         (List.map viewMovieItem movies)
+
+
+viewMovieInput : Model -> Html Msg
+viewMovieInput model =
+    div []
+        [ input
+            [ type_ "text"
+            , placeholder "New Movie?"
+            , autofocus True
+            , value model.titleInput
+            , onInput SetMovieInput
+            , class "f6 f5-l input-reset bn fl black-80 bg-white pa3 lh-solid w-100 w-75-m w-30-l br2-ns br--left-ns"
+            ]
+            []
+        , button
+            [ onClick SaveMovie
+            , class "f6 f5-l button-reset fl pv3 tc bn bg-animate bg-light-blue hover-bg-blue white pointer w-100 w-25-m w-10-l br2-ns br--right-ns"
+            ]
+            [ text "Save" ]
+        , a [ href "#", class "f4 fw7 dib pa2 ma2 no-underline hover-bg-light-blue red" ] [ text "Cancel" ]
+        ]
 
 
 view : Model -> Html Msg
@@ -108,6 +150,7 @@ view model =
     div []
         [ h2 [] [ text model.greeting ]
         , viewMovieList model.movies
+        , viewMovieInput model
         , hr [ class "mt4" ] []
         , text (toString model)
         ]
