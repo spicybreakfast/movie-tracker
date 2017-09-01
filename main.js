@@ -12301,21 +12301,48 @@ var _elm_lang$html$Html_Attributes$classList = function (list) {
 };
 var _elm_lang$html$Html_Attributes$style = _elm_lang$virtual_dom$VirtualDom$style;
 
-var _user$project$Main$viewTrailerItem = function (trailer) {
+var _user$project$Main$viewMovieItem = function (movie) {
 	return A2(
 		_elm_lang$html$Html$li,
 		{ctor: '[]'},
 		{
 			ctor: '::',
-			_0: _elm_lang$html$Html$text(trailer),
-			_1: {ctor: '[]'}
+			_0: _elm_lang$html$Html$text(movie.title),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$html$Html$text(' - '),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$a,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$href(movie.url),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text(movie.url),
+							_1: {ctor: '[]'}
+						}),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(' - '),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html$text(movie.notes),
+							_1: {ctor: '[]'}
+						}
+					}
+				}
+			}
 		});
 };
-var _user$project$Main$viewTrailerList = function (movies) {
+var _user$project$Main$viewMovieList = function (movies) {
 	return A2(
 		_elm_lang$html$Html$ul,
 		{ctor: '[]'},
-		A2(_elm_lang$core$List$map, _user$project$Main$viewTrailerItem, movies));
+		A2(_elm_lang$core$List$map, _user$project$Main$viewMovieItem, movies));
 };
 var _user$project$Main$view = function (model) {
 	return A2(
@@ -12333,7 +12360,7 @@ var _user$project$Main$view = function (model) {
 				}),
 			_1: {
 				ctor: '::',
-				_0: _user$project$Main$viewTrailerList(model.movies),
+				_0: _user$project$Main$viewMovieList(model.movies),
 				_1: {
 					ctor: '::',
 					_0: A2(
@@ -12362,27 +12389,31 @@ var _user$project$Main$update = F2(
 		var _p0 = msg;
 		return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 	});
+var _user$project$Main$Model = F2(
+	function (a, b) {
+		return {greeting: a, movies: b};
+	});
+var _user$project$Main$Movie = F3(
+	function (a, b, c) {
+		return {title: a, url: b, notes: c};
+	});
 var _user$project$Main$initialMovies = {
 	ctor: '::',
-	_0: 'Lucky',
+	_0: A3(_user$project$Main$Movie, 'Lucky', 'https://trailers.apple.com/trailers/magnolia/lucky/', 'dude from alien'),
 	_1: {
 		ctor: '::',
-		_0: 'Thor: Ragnorok',
+		_0: A3(_user$project$Main$Movie, 'Thor: Ragnorok', 'https://trailers.apple.com/trailers/marvel/thor-ragnarok/', ''),
 		_1: {
 			ctor: '::',
-			_0: 'Strange Weather',
+			_0: A3(_user$project$Main$Movie, 'Strange Weather', 'https://trailers.apple.com/trailers/independent/strange-weather/', 'Holly Hunter and Carrie Coon'),
 			_1: {
 				ctor: '::',
-				_0: 'Incredibles 2',
+				_0: A3(_user$project$Main$Movie, 'Incredibles 2', '', ''),
 				_1: {ctor: '[]'}
 			}
 		}
 	}
 };
-var _user$project$Main$Model = F2(
-	function (a, b) {
-		return {greeting: a, movies: b};
-	});
 var _user$project$Main$init = {
 	ctor: '_Tuple2',
 	_0: A2(_user$project$Main$Model, 'welcome to trailer tracker', _user$project$Main$initialMovies),

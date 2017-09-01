@@ -5,7 +5,7 @@
 module Main exposing (..)
 
 import Html exposing (..)
-import Html.Attributes exposing (class)
+import Html.Attributes exposing (class, href)
 
 
 --import Html.Events exposing (..)
@@ -27,7 +27,7 @@ main =
 
 type alias Model =
     { greeting : String
-    , movies : List String
+    , movies : List Movie
     }
 
 
@@ -36,9 +36,26 @@ init =
     ( Model "welcome to trailer tracker" initialMovies, Cmd.none )
 
 
-initialMovies : List String
+initialMovies : List Movie
 initialMovies =
-    [ "Lucky", "Thor: Ragnorok", "Strange Weather", "Incredibles 2" ]
+    [ Movie "Lucky"
+        "https://trailers.apple.com/trailers/magnolia/lucky/"
+        "dude from alien"
+    , Movie "Thor: Ragnorok"
+        "https://trailers.apple.com/trailers/marvel/thor-ragnarok/"
+        ""
+    , Movie "Strange Weather"
+        "https://trailers.apple.com/trailers/independent/strange-weather/"
+        "Holly Hunter and Carrie Coon"
+    , Movie "Incredibles 2" "" ""
+    ]
+
+
+type alias Movie =
+    { title : String
+    , url : String
+    , notes : String
+    }
 
 
 
@@ -69,23 +86,28 @@ subscriptions model =
 -- VIEW
 
 
-viewTrailerItem : String -> Html Msg
-viewTrailerItem trailer =
+viewMovieItem : Movie -> Html Msg
+viewMovieItem movie =
     li []
-        [ text trailer ]
+        [ text movie.title
+        , text " - "
+        , a [ href movie.url ] [ text movie.url ]
+        , text " - "
+        , text movie.notes
+        ]
 
 
-viewTrailerList : List String -> Html Msg
-viewTrailerList movies =
+viewMovieList : List Movie -> Html Msg
+viewMovieList movies =
     ul []
-        (List.map viewTrailerItem movies)
+        (List.map viewMovieItem movies)
 
 
 view : Model -> Html Msg
 view model =
     div []
         [ h2 [] [ text model.greeting ]
-        , viewTrailerList model.movies
+        , viewMovieList model.movies
         , hr [ class "mt4" ] []
         , text (toString model)
         ]
