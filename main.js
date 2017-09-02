@@ -13038,7 +13038,7 @@ var _user$project$Main$viewMovieList = function (movies) {
 		_elm_lang$html$Html$ul,
 		{
 			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('list pl0 ml0 mw6 ba b--light-silver br2 bg-white'),
+			_0: _elm_lang$html$Html_Attributes$class('list pl0 ml0 mw9 ba b--light-silver br2 bg-white'),
 			_1: {ctor: '[]'}
 		},
 		A2(_elm_lang$core$List$map, _user$project$Main$viewMovieItem, movies));
@@ -13047,18 +13047,19 @@ var _user$project$Main$moviesUrl = 'http://localhost:3000/movies';
 var _user$project$Main$subscriptions = function (model) {
 	return _elm_lang$core$Platform_Sub$none;
 };
-var _user$project$Main$Model = F3(
-	function (a, b, c) {
-		return {greeting: a, movies: b, titleInput: c};
+var _user$project$Main$Model = F4(
+	function (a, b, c, d) {
+		return {greeting: a, movies: b, titleInput: c, alertMessage: d};
 	});
-var _user$project$Main$initialModel = A3(
+var _user$project$Main$initialModel = A4(
 	_user$project$Main$Model,
 	'welcome to trailer tracker.',
 	{ctor: '[]'},
-	'');
-var _user$project$Main$Movie = F3(
-	function (a, b, c) {
-		return {title: a, url: b, notes: c};
+	'',
+	_elm_lang$core$Maybe$Just('feelin fine.'));
+var _user$project$Main$Movie = F4(
+	function (a, b, c, d) {
+		return {id: a, title: b, url: c, notes: d};
 	});
 var _user$project$Main$update = F2(
 	function (msg, model) {
@@ -13066,11 +13067,27 @@ var _user$project$Main$update = F2(
 		switch (_p0.ctor) {
 			case 'NewMovies':
 				if (_p0._0.ctor === 'Ok') {
-					var _p1 = A2(_elm_lang$core$Debug$log, 'woo: ', _p0._0._0);
-					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{movies: _p0._0._0}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
 				} else {
-					var _p2 = A2(_elm_lang$core$Debug$log, 'abbot is death process.', _p0._0._0);
-					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								alertMessage: _elm_lang$core$Maybe$Just(
+									A2(
+										_elm_lang$core$Basics_ops['++'],
+										'abbot is death process: ',
+										_elm_lang$core$Basics$toString(_p0._0._0)))
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
 				}
 			case 'AddMovie':
 				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
@@ -13082,7 +13099,7 @@ var _user$project$Main$update = F2(
 						{titleInput: _p0._0}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
-			default:
+			case 'SaveMovie':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -13093,22 +13110,82 @@ var _user$project$Main$update = F2(
 								model.movies,
 								{
 									ctor: '::',
-									_0: A3(_user$project$Main$Movie, model.titleInput, '', ''),
+									_0: A4(_user$project$Main$Movie, 1, model.titleInput, '', ''),
 									_1: {ctor: '[]'}
 								}),
 							titleInput: ''
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
+			default:
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{alertMessage: _elm_lang$core$Maybe$Nothing}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
 		}
 	});
+var _user$project$Main$movieDecoder = A5(
+	_elm_lang$core$Json_Decode$map4,
+	_user$project$Main$Movie,
+	A2(_elm_lang$core$Json_Decode$field, 'id', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode$field, 'title', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode$field, 'url', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode$field, 'notes', _elm_lang$core$Json_Decode$string));
+var _user$project$Main$CloseAlert = {ctor: 'CloseAlert'};
+var _user$project$Main$viewAlertMessage = function (alertMessage) {
+	var _p1 = alertMessage;
+	if (_p1.ctor === 'Just') {
+		return A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('bg-red pa3 white'),
+				_1: {ctor: '[]'}
+			},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$span,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('fr pointer'),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Events$onClick(_user$project$Main$CloseAlert),
+							_1: {ctor: '[]'}
+						}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text('X'),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(_p1._0),
+					_1: {ctor: '[]'}
+				}
+			});
+	} else {
+		return A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			{ctor: '[]'});
+	}
+};
 var _user$project$Main$NewMovies = function (a) {
 	return {ctor: 'NewMovies', _0: a};
 };
 var _user$project$Main$getMovies = A2(
 	_elm_lang$http$Http$send,
 	_user$project$Main$NewMovies,
-	_elm_lang$http$Http$getString(_user$project$Main$moviesUrl));
+	A2(
+		_elm_lang$http$Http$get,
+		_user$project$Main$moviesUrl,
+		_elm_lang$core$Json_Decode$list(_user$project$Main$movieDecoder)));
 var _user$project$Main$SaveMovie = {ctor: 'SaveMovie'};
 var _user$project$Main$SetMovieInput = function (a) {
 	return {ctor: 'SetMovieInput', _0: a};
@@ -13204,25 +13281,29 @@ var _user$project$Main$view = function (model) {
 				}),
 			_1: {
 				ctor: '::',
-				_0: _user$project$Main$viewMovieList(model.movies),
+				_0: _user$project$Main$viewAlertMessage(model.alertMessage),
 				_1: {
 					ctor: '::',
-					_0: _user$project$Main$viewMovieInput(model),
+					_0: _user$project$Main$viewMovieList(model.movies),
 					_1: {
 						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$hr,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$class('mt4'),
-								_1: {ctor: '[]'}
-							},
-							{ctor: '[]'}),
+						_0: _user$project$Main$viewMovieInput(model),
 						_1: {
 							ctor: '::',
-							_0: _elm_lang$html$Html$text(
-								_elm_lang$core$Basics$toString(model)),
-							_1: {ctor: '[]'}
+							_0: A2(
+								_elm_lang$html$Html$hr,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$class('mt4'),
+									_1: {ctor: '[]'}
+								},
+								{ctor: '[]'}),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html$text(
+									_elm_lang$core$Basics$toString(model)),
+								_1: {ctor: '[]'}
+							}
 						}
 					}
 				}
@@ -13241,7 +13322,7 @@ var _user$project$Main$AddMovie = {ctor: 'AddMovie'};
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};
 if (typeof _user$project$Main$main !== 'undefined') {
-    _user$project$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Main.Msg":{"args":[],"tags":{"SetMovieInput":["String"],"AddMovie":[],"NewMovies":["Result.Result Http.Error String"],"SaveMovie":[]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}}},"aliases":{"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"}},"message":"Main.Msg"},"versions":{"elm":"0.18.0"}});
+    _user$project$Main$main(Elm['Main'], 'Main', {"types":{"unions":{"Dict.LeafColor":{"args":[],"tags":{"LBBlack":[],"LBlack":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":["Dict.LeafColor"]}},"Main.Msg":{"args":[],"tags":{"SetMovieInput":["String"],"CloseAlert":[],"AddMovie":[],"NewMovies":["Result.Result Http.Error (List Main.Movie)"],"SaveMovie":[]}},"Dict.NColor":{"args":[],"tags":{"BBlack":[],"Red":[],"NBlack":[],"Black":[]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String"],"NetworkError":[],"Timeout":[],"BadStatus":["Http.Response String"],"BadPayload":["String","Http.Response String"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}}},"aliases":{"Main.Movie":{"args":[],"type":"{ id : Int, title : String, url : String, notes : String }"},"Http.Response":{"args":["body"],"type":"{ url : String , status : { code : Int, message : String } , headers : Dict.Dict String String , body : body }"}},"message":"Main.Msg"},"versions":{"elm":"0.18.0"}});
 }
 
 if (typeof define === "function" && define['amd'])

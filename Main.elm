@@ -8,6 +8,7 @@ import Html exposing (..)
 import Html.Attributes exposing (autofocus, class, href, placeholder, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Http
+import Json.Decode as Decode exposing (Decoder, field, succeed)
 
 
 -- MODEL
@@ -17,32 +18,18 @@ type alias Model =
     { greeting : String
     , movies : List Movie
     , titleInput : String
+    , alertMessage : Maybe String
     }
 
 
 initialModel : Model
 initialModel =
-    Model "welcome to trailer tracker." [] ""
-
-
-
---initialMovies : List Movie
---initialMovies =
---[ Movie "Lucky"
---"https://trailers.apple.com/trailers/magnolia/lucky/"
---"dude from alien"
---, Movie "Thor: Ragnorok"
---"https://trailers.apple.com/trailers/marvel/thor-ragnarok/"
---""
---, Movie "Strange Weather"
---"https://trailers.apple.com/trailers/independent/strange-weather/"
---"Holly Hunter and Carrie Coon"
---, Movie "Incredibles 2" "" ""
---]
+    Model "welcome to trailer tracker." [] "" (Just "feelin fine.")
 
 
 type alias Movie =
-    { title : String
+    { id : Int
+    , title : String
     , url : String
     , notes : String
     }
@@ -56,25 +43,18 @@ type Msg
     = AddMovie
     | SetMovieInput String
     | SaveMovie
-    | NewMovies (Result Http.Error String)
+    | NewMovies (Result Http.Error (List Movie))
+    | CloseAlert
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        NewMovies (Ok jsonString) ->
-            let
-                _ =
-                    Debug.log "woo: " jsonString
-            in
-            ( model, Cmd.none )
+        NewMovies (Ok newMovies) ->
+            ( { model | movies = newMovies }, Cmd.none )
 
         NewMovies (Err error) ->
-            let
-                _ =
-                    Debug.log "abbot is death process." error
-            in
-            ( model, Cmd.none )
+            ( { model | alertMessage = Just ("abbot is death process: " ++ toString error) }, Cmd.none )
 
         AddMovie ->
             ( model, Cmd.none )
@@ -84,11 +64,27 @@ update msg model =
 
         SaveMovie ->
             ( { model
-                | movies = model.movies ++ [ Movie model.titleInput "" "" ]
+                | movies = model.movies ++ [ Movie 1 model.titleInput "" "" ]
                 , titleInput = ""
               }
             , Cmd.none
             )
+
+        CloseAlert ->
+            ( { model | alertMessage = Nothing }, Cmd.none )
+
+
+
+-- DECODERS
+
+
+movieDecoder : Decoder Movie
+movieDecoder =
+    Decode.map4 Movie
+        (field "id" Decode.int)
+        (field "title" Decode.string)
+        (field "url" Decode.string)
+        (field "notes" Decode.string)
 
 
 
@@ -111,7 +107,9 @@ moviesUrl =
 
 getMovies : Cmd Msg
 getMovies =
-    Http.send NewMovies (Http.getString moviesUrl)
+    Decode.list movieDecoder
+        |> Http.get moviesUrl
+        |> Http.send NewMovies
 
 
 
@@ -131,7 +129,7 @@ viewMovieItem movie =
 
 viewMovieList : List Movie -> Html Msg
 viewMovieList movies =
-    ul [ class "list pl0 ml0 mw6 ba b--light-silver br2 bg-white" ]
+    ul [ class "list pl0 ml0 mw9 ba b--light-silver br2 bg-white" ]
         (List.map viewMovieItem movies)
 
 
@@ -156,10 +154,24 @@ viewMovieInput model =
         ]
 
 
+viewAlertMessage : Maybe String -> Html Msg
+viewAlertMessage alertMessage =
+    case alertMessage of
+        Just message ->
+            div [ class "bg-red pa3 white" ]
+                [ span [ class "fr pointer", onClick CloseAlert ] [ text "X" ]
+                , text message
+                ]
+
+        Nothing ->
+            div [] []
+
+
 view : Model -> Html Msg
 view model =
     div []
         [ h2 [] [ text model.greeting ]
+        , viewAlertMessage model.alertMessage
         , viewMovieList model.movies
         , viewMovieInput model
         , hr [ class "mt4" ] []
